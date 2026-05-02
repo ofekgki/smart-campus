@@ -70,5 +70,6 @@ public class StudentController {
         // רמז: studentRepository.findAll(Sort.by(Sort.Direction.DESC, "grade"))
 
         return new ArrayList<>(); // כרגע מחזיר רשימה ריקה
+
     }
 }
