@@ -195,16 +195,32 @@
           if (body) options.body = JSON.stringify(body);
           
           const response = await fetch(`${API_BASE}${endpoint}`, options);
+          
+          // אם השרת החזיר שגיאה (כמו 404 או 400)
           if (!response.ok) {
-            const errorMsg = await response.text();
-            alert(`Error: ${errorMsg || response.status}`);
-            return null;
+            const errText = await response.text();
+            alert(`Server Error: ${errText || response.status}`);
+            return false;
           }
+
+          // קריאת התשובה מהשרת
           const text = await response.text();
-          return text ? JSON.parse(text) : true;
+          
+          // אם השרת החזיר סטטוס תקין אבל תשובה ריקה
+          if (!text) return true; 
+
+          // התיקון: מנסים להמיר ל-JSON, ואם זה טקסט רגיל - מתעלמים מהשגיאה ומחזירים הצלחה
+          try {
+            return JSON.parse(text); 
+          } catch (e) {
+            return true; // השרת החזיר טקסט רגיל (כמו במחיקה), הכל בסדר!
+          }
+          
         } catch (error) {
-          alert(`Connection Error! Is your Spring Boot server running?`);
-          return null;
+          // תגיע לכאן רק אם השרת באמת כבוי
+          alert(`Connection Error! Is Spring Boot running?`);
+          console.error("API Error:", error);
+          return false; 
         }
       };
 
