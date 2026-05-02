@@ -1,4 +1,1 @@
-# smart-campus
-# smart-campus
-# smart-campus
-# smart-campus
+# smart-campus example
