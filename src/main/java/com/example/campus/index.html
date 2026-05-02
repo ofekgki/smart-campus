@@ -1,220 +1,291 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="he" dir="ltr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Management</title>
-    <!-- טעינת Vue ישירות מהאינטרנט -->
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Manager - Actions & Sorting</title>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <style>
+    body {
+      background-color: #f4f7f6;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #333;
+      margin: 0;
+      padding: 40px 20px;
+    }
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+    }
+    h1 {
+      text-align: center;
+      color: #2c3e50;
+      margin-bottom: 30px;
+      border-bottom: 2px solid #eee;
+      padding-bottom: 10px;
+    }
+    .form-section {
+      background: #eef2f5;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 30px;
+    }
+    .input-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      margin-bottom: 15px;
+    }
+    input {
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 15px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    button {
+      border: none;
+      padding: 10px 15px;
+      font-size: 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background 0.3s;
+      color: white;
+    }
+    /* צבעי כפתורים */
+    .btn-primary { background: #3498db; width: 100%; padding: 12px;}
+    .btn-primary:hover { background: #2980b9; }
+    
+    .btn-action { background: #f39c12; padding: 6px 12px; font-size: 13px; }
+    .btn-action:hover { background: #e67e22; }
+    
+    .btn-delete { background: #e74c3c; padding: 6px 12px; font-size: 13px; }
+    .btn-delete:hover { background: #c0392b; }
+    
+    .btn-sort { background: #9b59b6; margin-bottom: 15px; }
+    .btn-sort:hover { background: #8e44ad; }
 
-    <style>
-        body {
-            background-color: #f0f2f5;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            color: #333;
-            margin: 0;
-            padding: 40px 20px;
-        }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-        h1 {
-            text-align: center;
-            color: #2c3e50;
-            margin-bottom: 30px;
-            border-bottom: 2px solid #eee;
-            padding-bottom: 10px;
-        }
-        .form-section {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 30px;
-            border: 1px solid #e9ecef;
-        }
-        .input-group {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-bottom: 15px;
-        }
-        input {
-            padding: 12px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            font-size: 16px;
-            width: 100%;
-            box-sizing: border-box;
-        }
-        button {
-            background: #3498db;
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            font-size: 16px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: bold;
-            width: 100%;
-            transition: background 0.3s;
-        }
-        button:hover { background: #2980b9; }
-        .refresh-btn {
-            background: #2ecc71;
-            width: auto;
-            margin-bottom: 15px;
-        }
-        .refresh-btn:hover { background: #27ae60; }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
-        th, td {
-            padding: 15px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-        th {
-            background-color: #f4f6f7;
-            color: #2c3e50;
-        }
-        tr:hover { background-color: #fcfcfc; }
-    </style>
+    /* עיצוב הטבלה */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      background: white;
+    }
+    th, td {
+      padding: 15px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+    th {
+      background-color: #f8f9fa;
+      color: #2c3e50;
+    }
+    tr:hover { background-color: #f1f4f6; }
+    
+    /* מחלקה מיוחדת לציון נכשל */
+    .failing-grade {
+      color: #e74c3c;
+      font-weight: bold;
+      background-color: #fdf3f2;
+      border-radius: 4px;
+      padding: 4px 8px;
+    }
+    .actions-cell {
+      display: flex;
+      gap: 8px;
+    }
+  </style>
 </head>
 <body>
 
 <div id="app">
-    <div class="container">
-        <h1>🎓 Student Course Portal</h1>
+  <div class="container">
+    <h1>🎓 Student Grades Manager</h1>
 
-        <!-- אזור הוספת הסטודנט -->
-        <div class="form-section">
-            <h3>Add New Student Record</h3>
-            <div class="input-group">
-                <input v-model="form.studentId" type="text" placeholder="Student ID (e.g. 123456789)" />
-                <input v-model="form.name" type="text" placeholder="Full Name" />
-            </div>
-            <div class="input-group">
-                <input v-model="form.courseName" type="text" placeholder="Course Name (e.g. Java 101)" />
-                <input v-model="form.grade" type="number" placeholder="Grade (0-100)" />
-            </div>
-            <button @click="addRecord">Save Record to Database</button>
-        </div>
-
-        <!-- אזור תצוגת הנתונים -->
-        <div class="data-section">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <h3>Database Records</h3>
-                <button class="refresh-btn" @click="fetchRecords">🔄 Refresh Data</button>
-            </div>
-
-            <table>
-                <thead>
-                <tr>
-                    <th>Student ID</th>
-                    <th>Name</th>
-                    <th>Course</th>
-                    <th>Grade</th>
-                </tr>
-                </thead>
-                <tbody>
-                <!-- לולאה שעוברת על כל הנתונים שחזרו מהשרת -->
-                <tr v-for="(record, index) in recordsList" :key="index">
-                    <td>{{ record.studentId }}</td>
-                    <td>{{ record.name }}</td>
-                    <td>{{ record.courseName }}</td>
-                    <td><strong>{{ record.grade }}</strong></td>
-                </tr>
-                <tr v-if="recordsList.length === 0">
-                    <td colspan="4" style="text-align: center; color: #888;">No records found. Add one above!</td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-
+    <!-- טופס הוספה -->
+    <div class="form-section">
+      <h3>Add New Student</h3>
+      <div class="input-group">
+        <input v-model="form.studentId" type="text" placeholder="Student ID (e.g. 123456789)" />
+        <input v-model="form.name" type="text" placeholder="Full Name" />
+      </div>
+      <div class="input-group">
+        <input v-model="form.courseName" type="text" placeholder="Course Name" />
+        <input v-model="form.grade" type="number" placeholder="Grade (0-100)" />
+      </div>
+      <button class="btn-primary" @click="addRecord">Add Student</button>
     </div>
+
+    <!-- אזור הנתונים -->
+    <div>
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h3>Enrolled Students</h3>
+        <!-- כפתור המיון -->
+        <button class="btn-sort" @click="sortByGrade">
+          ⇅ Sort by Grade ({{ sortDirection === 'asc' ? 'Low to High' : 'High to Low' }})
+        </button>
+      </div>
+      
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Course</th>
+            <th>Grade</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="record in recordsList" :key="record.id">
+            <td>{{ record.studentId }}</td>
+            <td>{{ record.name }}</td>
+            <td>{{ record.courseName }}</td>
+            <!-- תנאי שמפעיל את המחלקה האדומה אם הציון קטן מ-60 -->
+            <td>
+              <span :class="{'failing-grade': record.grade < 60}">
+                {{ record.grade }}
+              </span>
+            </td>
+            <td class="actions-cell">
+              <!-- כפתור עדכון ציון -->
+              <button class="btn-action" @click="promptUpdateGrade(record)">Update Grade</button>
+              <!-- כפתור מחיקה -->
+              <button class="btn-delete" @click="deleteRecord(record.id)">Delete</button>
+            </td>
+          </tr>
+          <tr v-if="recordsList.length === 0">
+            <td colspan="5" style="text-align: center; color: #888; padding: 20px;">No students found in the database.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
 </div>
 
 <script>
-    const { createApp, ref, onMounted } = Vue;
+  const { createApp, ref, onMounted } = Vue;
 
-    createApp({
-        setup() {
-            // הכתובת של שרת ה-Spring Boot של הסטודנטים
-            const API_BASE = 'http://localhost:8080/api/students';
+  createApp({
+    setup() {
+      const API_BASE = 'http://localhost:8080/api/students';
 
-            // משתנים ריאקטיביים
-            const recordsList = ref([]);
-            const form = ref({
-                studentId: '',
-                name: '',
-                courseName: '',
-                grade: null
-            });
+      const recordsList = ref([]);
+      const sortDirection = ref('asc'); // משתנה למעקב אחרי כיוון המיון
+      
+      const form = ref({
+        studentId: '',
+        name: '',
+        courseName: '',
+        grade: null
+      });
 
-            // פונקציית עזר לפניות לשרת
-            const apiCall = async (endpoint, method = 'GET', body = null) => {
-                try {
-                    const options = { method, headers: { 'Content-Type': 'application/json' } };
-                    if (body) options.body = JSON.stringify(body);
-
-                    const response = await fetch(`${API_BASE}${endpoint}`, options);
-                    if (!response.ok) throw new Error(`Server error: ${response.status}`);
-
-                    const text = await response.text();
-                    return text ? JSON.parse(text) : {};
-                } catch (error) {
-                    alert(`Connection Error: Make sure your Spring Boot server is running on port 8080 and @CrossOrigin is added to your Controller!`);
-                    console.error(error);
-                    return null;
-                }
-            };
-
-            // משיכת כל הנתונים מהשרת
-            const fetchRecords = async () => {
-                const data = await apiCall('');
-                if (data) {
-                    recordsList.value = data;
-                }
-            };
-
-            // שליחת נתונים חדשים לשרת
-            const addRecord = async () => {
-                if (!form.value.studentId || !form.value.name || !form.value.courseName) {
-                    alert("Please fill in all fields!");
-                    return;
-                }
-
-                await apiCall('', 'POST', form.value);
-                alert("Record successfully saved!");
-
-                // ניקוי הטופס אחרי השמירה
-                form.value = { studentId: '', name: '', courseName: '', grade: null };
-
-                // רענון אוטומטי של הטבלה
-                fetchRecords();
-            };
-
-            // טעינת הנתונים אוטומטית כשהעמוד עולה
-            onMounted(() => {
-                fetchRecords();
-            });
-
-            return {
-                form,
-                recordsList,
-                addRecord,
-                fetchRecords
-            };
+      // פונקציית עזר לתקשורת עם השרת
+      const apiCall = async (endpoint, method = 'GET', body = null) => {
+        try {
+          const options = { method, headers: { 'Content-Type': 'application/json' } };
+          if (body) options.body = JSON.stringify(body);
+          
+          const response = await fetch(`${API_BASE}${endpoint}`, options);
+          if (!response.ok) {
+            const errorMsg = await response.text();
+            alert(`Error: ${errorMsg || response.status}`);
+            return null;
+          }
+          const text = await response.text();
+          return text ? JSON.parse(text) : true;
+        } catch (error) {
+          alert(`Connection Error! Is your Spring Boot server running?`);
+          return null;
         }
-    }).mount('#app');
+      };
+
+      // 1. שליפת נתונים
+      const fetchRecords = async () => {
+        const data = await apiCall('');
+        if (data) recordsList.value = data;
+      };
+
+      // 2. הוספת רשומה
+      const addRecord = async () => {
+        if (!form.value.studentId || !form.value.name || form.value.grade === null) {
+          alert("Please fill in all fields!");
+          return;
+        }
+        const result = await apiCall('', 'POST', form.value);
+        if (result) {
+          form.value = { studentId: '', name: '', courseName: '', grade: null };
+          fetchRecords();
+        }
+      };
+
+      // 3. מחיקת רשומה
+      const deleteRecord = async (id) => {
+        if(confirm("Are you sure you want to delete this student?")) {
+          const result = await apiCall(`/${id}`, 'DELETE');
+          if (result) fetchRecords();
+        }
+      };
+
+      // 4. עדכון ציון (באמצעות חלון קופץ מהיר)
+      const promptUpdateGrade = async (record) => {
+        const newGradeStr = prompt(`Enter new grade for ${record.name} (Current: ${record.grade}):`, record.grade);
+        
+        // אם המשתמש לחץ ביטול או השאיר ריק
+        if (newGradeStr === null || newGradeStr.trim() === '') return;
+        
+        const newGrade = parseInt(newGradeStr);
+        if (isNaN(newGrade) || newGrade < 0 || newGrade > 100) {
+          alert("Invalid grade! Please enter a number between 0 and 100.");
+          return;
+        }
+
+        // משכפלים את הרשומה הקיימת ומשנים רק את הציון
+        const updatedRecord = { ...record, grade: newGrade };
+        
+        // שולחים בקשת PUT לשרת (מניח שיש לך את הפונקציה ב-Spring Boot מהשלב הקודם)
+        const result = await apiCall(`/${record.id}`, 'PUT', updatedRecord);
+        if (result) {
+          fetchRecords(); // רענון הטבלה כדי לראות את השינוי
+        }
+      };
+
+      // 5. מיון לפי ציון (פועל מקומית ב-Vue)
+      const sortByGrade = () => {
+        if (sortDirection.value === 'asc') {
+          // מיון מהנמוך לגבוה
+          recordsList.value.sort((a, b) => a.grade - b.grade);
+          sortDirection.value = 'desc';
+        } else {
+          // מיון מהגבוה לנמוך
+          recordsList.value.sort((a, b) => b.grade - a.grade);
+          sortDirection.value = 'asc';
+        }
+      };
+
+      onMounted(() => {
+        fetchRecords();
+      });
+
+      return {
+        form,
+        recordsList,
+        sortDirection,
+        addRecord,
+        deleteRecord,
+        promptUpdateGrade,
+        sortByGrade
+      };
+    }
+  }).mount('#app');
 </script>
 
 </body>

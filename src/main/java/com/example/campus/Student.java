@@ -17,10 +17,8 @@ public class Student {
     private String courseName;
     private Integer grade;
 
-    // Required empty constructor
     public Student() {}
 
-    // Getters and Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public String getStudentId() { return studentId; }
